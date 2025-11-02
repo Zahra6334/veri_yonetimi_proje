@@ -12,6 +12,9 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.scene.control.Alert;
 
 /**
@@ -24,8 +27,11 @@ public class HashTable {
 
     private Ogrenci[] table;
     private int size;
-    private boolean useAdvanced;
+    public boolean useAdvanced;
     private HashMap<Integer, Ogrenci> advancedMap;
+    public void setUseAdvanced(boolean useAdvanced) {
+        this.useAdvanced = useAdvanced;
+    }
 
     public HashTable(int size, boolean useAdvanced) {
         this.size = size;
@@ -38,6 +44,7 @@ public class HashTable {
     }
 
     private int hash(int key) { return key % size; }
+
 
     // ------------------ ÖĞRENCİ EKLE ------------------
     public void addStudent(Ogrenci ogr) {
@@ -108,6 +115,21 @@ public class HashTable {
         }
         return list;
     }
+    public Ogrenci[] getAllStudentsArray() {
+        ArrayList<Ogrenci> list = new ArrayList<>();
+        if (useAdvanced) {
+            list.addAll(advancedMap.values());
+        } else {
+            for (Ogrenci ogr : table) {
+                if (ogr != null) list.add(ogr);
+            }
+        }
+
+        // ArrayList'i diziye çevir
+        Ogrenci[] array = new Ogrenci[list.size()];
+        return list.toArray(array);
+    }
+
 
     // ------------------ LİSTELEME ------------------
     public ArrayList<Ogrenci> listByClass(int sinif) {
@@ -149,13 +171,72 @@ public class HashTable {
         writeToFile("bolum_sirasi.txt", list);
         return list;
     }
+    public Ogrenci[] listbydepartmanArray(int bolum) {
+        Ogrenci[] array = getAllStudentsArray(); // Daha önce yazdığımız diziyi döndüren metot
 
-    public ArrayList<Ogrenci> listByGano() {
-        ArrayList<Ogrenci> list = getAllStudents();
-        // GANO'ya göre büyükten küçüğe sırala
-        list.sort((a,b) -> Float.compare(b.getGano(), a.getGano()));
+        int n = array.length;
+        int l=0;
+        for(int i = 0; i < n; i++) {
+            if(array[i].getBolumSira() == bolum) {
+
+                l++;
+            }
+        }
+        Ogrenci[] array2=new Ogrenci[l];
+        int k = 0;
+        for(int i = 0; i < n; i++) {
+            if(array[i].getBolumSira() == bolum) {
+                array2[k] = array[i];
+                k++;
+            }
+        }
+        for (int i = 0; i < l - 1; i++) {
+            for (int j = 0; j < l - 1 - i; j++) {
+                if (array2[j].getGano() < array2[j + 1].getGano()) {
+                    // Swap işlemi
+                    Ogrenci temp = array2[j];
+                    array2[j] = array2[j + 1];
+                    array2[j + 1] = temp;
+                }
+            }
+        }
+
+        return array2;
+
+    }
+
+    public ArrayList<Ogrenci> listByGanoAdvanced() {
+        ArrayList<Ogrenci> list = new ArrayList<>();
+
+
+
+             list = getAllStudents();
+            // GANO'ya göre büyükten küçüğe sırala
+            list.sort((a,b) -> Float.compare(b.getGano(), a.getGano()));
+
+
         return list;
     }
+    public Ogrenci[] listByGanoArray() {
+        Ogrenci[] array = getAllStudentsArray(); // Daha önce yazdığımız diziyi döndüren metot
+
+        int n = array.length;
+
+        // Bubble Sort ile GANO'ya göre büyükten küçüğe sıralama
+        for (int i = 0; i < n - 1; i++) {
+            for (int j = 0; j < n - 1 - i; j++) {
+                if (array[j].getGano() < array[j + 1].getGano()) {
+                    // Swap işlemi
+                    Ogrenci temp = array[j];
+                    array[j] = array[j + 1];
+                    array[j + 1] = temp;
+                }
+            }
+        }
+
+        return array;
+    }
+
 
     public ArrayList<Ogrenci> listByGender(char cinsiyet) {
         ArrayList<Ogrenci> list = new ArrayList<>();
@@ -163,20 +244,16 @@ public class HashTable {
         return list;
     }
 
-    // ------------------ HASH TABLOSU GÖSTER ------------------
-    public void displayHashTable() {
-        System.out.println("Hash Tablosu:");
-        if(useAdvanced) {
-            for(Integer key : advancedMap.keySet()) {
-                System.out.println(key + " -> " + advancedMap.get(key));
-            }
-        } else {
-            for(int i=0;i<size;i++) {
-                System.out.println(i + " -> " + table[i]);
+    public ObservableList<HashRow> getHashTableData() {
+        ObservableList<HashRow> list = FXCollections.observableArrayList();
+        for (int i = 0; i < table.length; i++) {
+            if (table[i] != null) {
+                Ogrenci ogr = table[i]; // table[i] = Ogrenci objesi
+                list.add(new HashRow(i, String.valueOf(ogr.getOgrNo()), ogr.toString()));
             }
         }
+        return list;
     }
-
     // ------------------ LISTE GOSTER ------------------
     public void displayList(ArrayList<Ogrenci> list, String baslik) {
         System.out.println("---- " + baslik + " ----");

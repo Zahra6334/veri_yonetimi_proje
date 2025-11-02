@@ -1,12 +1,15 @@
 package com.mycompany.mavenproject1;
 
+
 import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -16,7 +19,7 @@ import java.util.Random;
 
 public class App extends Application {
 
-    private boolean Use_Advanced_Data_Type = true; // true = gelişmiş mod, false = temel mod
+    private boolean Use_Advanced_Data_Type = false; // true = gelişmiş mod, false = temel mod
     private HashTable hashTable;
 
     @Override
@@ -32,7 +35,7 @@ public class App extends Application {
         GridPane form = new GridPane();
         form.setHgap(10);
         form.setVgap(10);
-
+        CheckBox advanced=new CheckBox("advanced");
         TextField tfIsim = new TextField();
         TextField tfSoyad = new TextField();
         TextField tfOgrNo = new TextField();
@@ -50,7 +53,15 @@ public class App extends Application {
         form.addRow(5, new Label("Sınıf:"), tfSinif);
         form.addRow(6, new Label("Sınıf Sıra:"), tfSinifSira);
         form.addRow(7, new Label("Cinsiyet (E/K):"), tfCinsiyet);
+        form.addRow(8,advanced);
 
+        advanced.setOnAction(e->{
+            if(advanced.isSelected()){
+                Use_Advanced_Data_Type = true;
+            }else{
+                Use_Advanced_Data_Type = false;
+            }
+        });
         // -------------------------
         // Öğrenci Ekle
         // -------------------------
@@ -77,6 +88,37 @@ public class App extends Application {
             } catch (Exception ex) {
                 showAlert("Hata", "Tüm alanları doğru doldurun!");
             }
+        });
+
+        // -------------------------
+// Hash Tablosunu Göster Butonu
+// -------------------------
+        Button btnHash = new Button("Hash Tablosunu Göster");
+        btnHash.setOnAction(e -> {
+            TableView<HashRow> tableView = new TableView<>();
+
+            TableColumn<HashRow, Integer> colIndex = new TableColumn<>("Index");
+            colIndex.setCellValueFactory(new PropertyValueFactory<>("index"));
+            colIndex.setPrefWidth(50);
+
+            TableColumn<HashRow, String> colKey = new TableColumn<>("Anahtar");
+            colKey.setCellValueFactory(new PropertyValueFactory<>("key"));
+            colKey.setPrefWidth(100);
+
+            TableColumn<HashRow, String> colValue = new TableColumn<>("Öğrenci Bilgisi");
+            colValue.setCellValueFactory(new PropertyValueFactory<>("value"));
+            colValue.setPrefWidth(600);
+
+            tableView.getColumns().addAll(colIndex, colKey, colValue);
+            tableView.setItems(hashTable.getHashTableData());
+
+            VBox vbox = new VBox(tableView);
+            VBox.setVgrow(tableView, Priority.ALWAYS);
+
+            Stage stageHash = new Stage();
+            stageHash.setTitle("Hash Tablosu");
+            stageHash.setScene(new Scene(vbox, 800, 600));
+            stageHash.show();
         });
 
         // -------------------------
@@ -167,11 +209,6 @@ public class App extends Application {
             });
         });
 
-        // -------------------------
-        // Hash Tablosunu Göster (Bu hala konsolda gösteriliyor/debug amaçlıdır)
-        // -------------------------
-        Button btnHash = new Button("Hash Tablosunu Göster");
-        btnHash.setOnAction(e -> hashTable.displayHashTable());
 
         // -------------------------
         // Tüm Öğrenciler
@@ -207,7 +244,6 @@ public class App extends Application {
 
 
 
-
         // -------------------------
         // Cinsiyete Göre Listele
         // -------------------------
@@ -235,26 +271,75 @@ public class App extends Application {
         Button btnAnaliz = new Button("Sınıflara Göre Sıralı Analiz Yap");
         btnAnaliz.setOnAction(e -> {
             long totalStartTime = System.currentTimeMillis();
+            if(Use_Advanced_Data_Type){
+                // 1. Bölüm 1'i GANO'ya göre sırala ve göster
+                ArrayList<Ogrenci> list1 = hashTable.listByDepartment(1);
+                displayStudentsInTable(list1, "Analiz: 1. Sınıf GANO Sıralaması");
 
-            // 1. Bölüm 1'i GANO'ya göre sırala ve göster
-            ArrayList<Ogrenci> list1 = hashTable.listByDepartment(1);
-            displayStudentsInTable(list1, "Analiz: 1. Sınıf GANO Sıralaması");
+                // 2. Bölüm 2'yi GANO'ya göre sırala ve göster
+                ArrayList<Ogrenci> list2 = hashTable.listByDepartment(2);
+                displayStudentsInTable(list2, "Analiz: 2. Sınıf GANO Sıralaması");
 
-            // 2. Bölüm 2'yi GANO'ya göre sırala ve göster
-            ArrayList<Ogrenci> list2 = hashTable.listByDepartment(2);
-            displayStudentsInTable(list2, "Analiz: 2. Sınıf GANO Sıralaması");
+                // 3. Bölüm 3'ü GANO'ya göre sırala ve göster
+                ArrayList<Ogrenci> list3 = hashTable.listByDepartment(3);
+                displayStudentsInTable(list3, "Analiz: 3. Sınıf GANO Sıralaması");
 
-            // 3. Bölüm 3'ü GANO'ya göre sırala ve göster
-            ArrayList<Ogrenci> list3 = hashTable.listByDepartment(3);
-            displayStudentsInTable(list3, "Analiz: 3. Sınıf GANO Sıralaması");
+                // 4. Bölüm 4'ü GANO'ya göre sırala ve göster
+                ArrayList<Ogrenci> list4 = hashTable.listByDepartment(4);
+                displayStudentsInTable(list4, "Analiz: 4. Sınıf GANO Sıralaması");
 
-            // 4. Bölüm 4'ü GANO'ya göre sırala ve göster
-            ArrayList<Ogrenci> list4 = hashTable.listByDepartment(4);
-            displayStudentsInTable(list4, "Analiz: 4. Sınıf GANO Sıralaması");
+                // 5. TÜM Bölümleri GANO'ya Göre Sırala ve göster
+                ArrayList<Ogrenci> allStudentsByGano = hashTable.listByGanoAdvanced();
+                displayStudentsInTable(allStudentsByGano, "Analiz: TÜM Bölümler GANO Sıralaması");
 
-            // 5. TÜM Bölümleri GANO'ya Göre Sırala ve göster
-            ArrayList<Ogrenci> allStudentsByGano = hashTable.listByGano();
-            displayStudentsInTable(allStudentsByGano, "Analiz: TÜM Bölümler GANO Sıralaması");
+            }else{
+                Ogrenci[] list1 = hashTable.listbydepartmanArray(1);
+                ArrayList<Ogrenci> list1view = new ArrayList<>();
+                for (Ogrenci o : list1) {
+                    list1view.add(o);
+                }
+
+// Mevcut metodla gösteriyoruz
+                displayStudentsInTable(list1view, "Analiz: 1. Sınıf GANO Sıralaması");
+
+                Ogrenci[] list2 = hashTable.listbydepartmanArray(2);
+                ArrayList<Ogrenci> list2view = new ArrayList<>();
+                for (Ogrenci o : list2) {
+                    list2view.add(o);
+                }
+
+// Mevcut metodla gösteriyoruz
+                displayStudentsInTable(list2view, "Analiz: 2. Sınıf GANO Sıralaması");
+
+                Ogrenci[] list3 = hashTable.listbydepartmanArray(3);
+                ArrayList<Ogrenci> list3view = new ArrayList<>();
+                for (Ogrenci o : list3) {
+                    list3view.add(o);
+                }
+
+// Mevcut metodla gösteriyoruz
+                displayStudentsInTable(list3view, "Analiz: 3. Sınıf GANO Sıralaması");
+
+                Ogrenci[] list4 = hashTable.listbydepartmanArray(4);
+                ArrayList<Ogrenci> list4view = new ArrayList<>();
+                for (Ogrenci o : list4) {
+                    list4view.add(o);
+                }
+
+// Mevcut metodla gösteriyoruz
+                displayStudentsInTable(list4view, "Analiz: 4. Sınıf GANO Sıralaması");
+                // Diziyi ArrayList'e çeviriyoruz
+                Ogrenci[] allStudentsByGano = hashTable.listByGanoArray();
+                ArrayList<Ogrenci> list = new ArrayList<>();
+                for (Ogrenci o : allStudentsByGano) {
+                    list.add(o);
+                }
+
+// Mevcut metodla gösteriyoruz
+                displayStudentsInTable(list, "Analiz: TÜM Bölümler GANO Sıralaması");
+
+            }
+
 
             long totalEndTime = System.currentTimeMillis();
             showAlert("Analiz Tamamlandı",
@@ -265,8 +350,9 @@ public class App extends Application {
         // -------------------------
         // GUI’ye ekleme
         // -------------------------
+
         VBox root = new VBox(10, header, form, btnEkle, btnAraNo, btnAdaAra, btnSil, btnGuncelle,
-                btnTumOgr,btnNoListe, btnCinsiyetListe, btnAnaliz, btnHash); // Yeni buton eklendi
+                btnTumOgr,btnNoListe, btnCinsiyetListe, btnAnaliz); // Yeni buton eklendi
         Scene scene = new Scene(root, 600, 780); // Pencere boyutu artırıldı
 
         stage.setTitle("Öğrenci Kayıt Sistemi");
@@ -367,6 +453,7 @@ public class App extends Application {
         tableStage.setScene(scene);
         tableStage.show();
     }
+
 
     private void showAlert(String title, String message) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
