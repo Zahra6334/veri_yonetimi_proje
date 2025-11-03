@@ -15,6 +15,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Random;
 
 public class App extends Application {
@@ -25,7 +26,7 @@ public class App extends Application {
     @Override
     public void start(Stage stage) {
         hashTable = new HashTable(12007, Use_Advanced_Data_Type);
-        addRandomStudents(1000);
+        addRandomStudents(10000);
 
         Label header = new Label("Öğrenci Kayıt Sistemi");
 
@@ -232,7 +233,25 @@ public class App extends Application {
         Button btnNoListe = new Button("Öğrenci No'ya Göre Listele");
         btnNoListe.setOnAction(e -> {
             long startTime = System.currentTimeMillis();
-            ArrayList<Ogrenci> list = hashTable.listByOgrNo();
+            ArrayList<Ogrenci> list = null;
+            if(Use_Advanced_Data_Type){
+
+                 list = hashTable.listByOgrNo();
+            }else{
+                // --------------------
+                // Temel mod (sadece diziler)
+                // --------------------
+                Ogrenci[] dizi = hashTable.listByOgrNoArray();
+                long endTime = System.currentTimeMillis();
+
+                // Diziyi ArrayList'e çevir (tabloda göstermek için)
+                list = new ArrayList<>(Arrays.asList(dizi));
+
+                displayStudentsInTable(list, "Öğrenci No'ya Göre Sıralama (Dizi ile)");
+                showAlert("Bilgi", "Listeleme süresi: " + (endTime - startTime) + " ms");
+
+            }
+
             long endTime = System.currentTimeMillis();
 
             displayStudentsInTable(list, "Öğrenci No'ya Göre Sıralama"); // Tabloda göster

@@ -12,6 +12,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -26,9 +27,11 @@ import javafx.scene.control.Alert;
 public class HashTable {
 
     private Ogrenci[] table;
+    private boolean[] deleted; // tombstone işaretleri
     private int size;
     public boolean useAdvanced;
     private HashMap<Integer, Ogrenci> advancedMap;
+
     public void setUseAdvanced(boolean useAdvanced) {
         this.useAdvanced = useAdvanced;
     }
@@ -36,51 +39,115 @@ public class HashTable {
     public HashTable(int size, boolean useAdvanced) {
         this.size = size;
         this.useAdvanced = useAdvanced;
-        if(useAdvanced) {
+        if (useAdvanced) {
             advancedMap = new HashMap<>();
         } else {
             table = new Ogrenci[size];
+            deleted = new boolean[size];
+            // başlangıçta tüm deleted false
         }
     }
 
-    private int hash(int key) { return key % size; }
+    private int hash(int key) {
+        return Math.abs(key) % size;
+    }
 
+    // Yardımcı: tabloda bir anahtarın index'ini bulur, bulunamazsa -1 döner.
+    private int findIndex(int key) {
+        int index = hash(key);
+        int start = index;
+        while (true) {
+            // tamamen boş (null ve tombstone değil) ise artık probe bitmiştir
+            if (table[index] == null && !deleted[index]) {
+                return -1; // bulunamadı
+            }
+            // eğer burada bir kayıt varsa kontrol et
+            if (table[index] != null && table[index].getOgrNo() == key) {
+                return index;
+            }
+            index = (index + 1) % size;
+            if (index == start) return -1; // tüm tablo tarandı
+        }
+    }
 
     // ------------------ ÖĞRENCİ EKLE ------------------
     public void addStudent(Ogrenci ogr) {
-        if(useAdvanced) {
+        if (useAdvanced) {
             advancedMap.put(ogr.getOgrNo(), ogr);
-        } else {
-            int index = hash(ogr.getOgrNo());
-            int start = index;
-            while(table[index] != null) {
-                index = (index + 1) % size;
-                if(index == start) {
-                    System.out.println("Hash table dolu!");
+            // İsteğe bağlı: dosyaya yaz
+            writeToFile("ogrenciler.txt", getAllStudentsAdvanced());
+            return;
+        }
+
+        // önce aynı öğrenci var mı kontrol et (tekrar eklemeyi engellemek için)
+        int existing = findIndex(ogr.getOgrNo());
+        if (existing != -1) {
+            // istersen burada güncelleme de yapabilirsin:
+            table[existing] = ogr;
+            deleted[existing] = false; // güvenlik
+            writeToFile("ogrenciler.txt", getAllStudents());
+            return;
+        }
+
+        int index = hash(ogr.getOgrNo());
+        int start = index;
+        int firstDeletedIndex = -1;
+
+        while (true) {
+            // eğer boş ve tombstone olmayan bir hücre ise doğrudan yerleş
+            if (table[index] == null && !deleted[index]) {
+                if (firstDeletedIndex != -1) {
+                    table[firstDeletedIndex] = ogr;
+                    deleted[firstDeletedIndex] = false;
+                } else {
+                    table[index] = ogr;
+                    deleted[index] = false;
+                }
+                writeToFile("ogrenciler.txt", getAllStudents());
+                return;
+            }
+
+            // tombstone ise ilk tombstone'ı kaydet
+            if (table[index] == null && deleted[index]) {
+                if (firstDeletedIndex == -1) firstDeletedIndex = index;
+            }
+
+            // eğer mevcut bir öğe varsa aynı anahtarı kontrol ettik zaten (üstte)
+            index = (index + 1) % size;
+            if (index == start) {
+                // tablo dolu veya sadece tombstonelar var
+                if (firstDeletedIndex != -1) {
+                    table[firstDeletedIndex] = ogr;
+                    deleted[firstDeletedIndex] = false;
+                    writeToFile("ogrenciler.txt", getAllStudents());
+                    return;
+                } else {
+                    System.out.println("Hash table dolu! Öğrenci eklenemedi: " + ogr.getOgrNo());
                     return;
                 }
             }
-            table[index] = ogr;
         }
-        writeToFile("ogrenciler.txt", getAllStudents());
+    }
+    private ArrayList<Ogrenci> getAllStudentsAdvanced() {
+        return new ArrayList<>(advancedMap.values());
     }
 
     // ------------------ ÖĞRENCİ SİL ------------------
     public boolean deleteStudent(int no) {
-        if(useAdvanced) {
-            return advancedMap.remove(no) != null;
+        if (useAdvanced) {
+            boolean removed = advancedMap.remove(no) != null;
+            if (removed) writeToFile("ogrenciler.txt", getAllStudentsAdvanced());
+            return removed;
         } else {
-            int index = hash(no);
-            int start = index;
-            while(table[index] != null) {
-                if(table[index].getOgrNo() == no) {
-                    table[index] = null;
-                    return true;
-                }
-                index = (index + 1) % size;
-                if(index == start) break;
-            }
-            return false;
+            int index = findIndex(no);
+            if (index == -1) return false; // bulunamadı
+
+            // tombstone koy: fiziksel nesneyi null yap ve deleted=true
+            table[index] = null;
+            deleted[index] = true;
+
+            writeToFile("ogrenciler.txt", getAllStudents());
+            return true;
         }
     }
 
@@ -148,12 +215,42 @@ public class HashTable {
      * @return Öğrenci numarasına göre sıralanmış ArrayList.
      */
     public ArrayList<Ogrenci> listByOgrNo() {
+        long startTime = System.nanoTime();
         ArrayList<Ogrenci> list = getAllStudents();
         // Öğrenci numarasına göre küçükten büyüğe sırala
         list.sort((a, b) -> Integer.compare(a.getOgrNo(), b.getOgrNo()));
         writeToFile("ogr_no_sirasi.txt", list);
+        long endTime = System.nanoTime(); // Bitiş zamanı
+        long duration = (endTime - startTime) / 1_000_000;
+        writePerformanceToFile("performans.txt", "Ogrenci_No'ya göre gelişmiş mod  "  + " sıralama süresi: " + duration + " ms");
         return list;
     }
+
+    public Ogrenci[] listByOgrNoArray() {
+        long startTime = System.nanoTime();
+        ArrayList<Ogrenci> allStudents = getAllStudents(); // mevcut öğrencileri al
+        Ogrenci[] dizi = new Ogrenci[allStudents.size()];
+        for (int i = 0; i < allStudents.size(); i++) {
+            dizi[i] = allStudents.get(i);
+        }
+
+        // Basit Bubble Sort ile dizi sıralaması (öğrenci numarasına göre)
+        for (int i = 0; i < dizi.length - 1; i++) {
+            for (int j = 0; j < dizi.length - i - 1; j++) {
+                if (dizi[j].getOgrNo() > dizi[j + 1].getOgrNo()) {
+                    Ogrenci temp = dizi[j];
+                    dizi[j] = dizi[j + 1];
+                    dizi[j + 1] = temp;
+                }
+            }
+        }
+        long endTime = System.nanoTime(); // Bitiş zamanı
+        long duration = (endTime - startTime) / 1_000_000;
+        writePerformanceToFile("performans.txt", "OgrenciNo'ya göre temel mod  "  + " sıralama süresi: " + duration + " ms");
+
+        return dizi;
+    }
+
 
     /**
      * Belirtilen bölümdeki öğrencileri GANO'ya göre büyükten küçüğe sıralayarak listeler.
@@ -161,6 +258,7 @@ public class HashTable {
      * @return Bölüme göre filtrelenmiş ve GANO'ya göre sıralanmış ArrayList.
      */
     public ArrayList<Ogrenci> listByDepartment(int bolum) {
+        long startTime = System.nanoTime();
         ArrayList<Ogrenci> list = new ArrayList<>();
         // Bölüme göre filtrele
         for(Ogrenci ogr : getAllStudents()) {
@@ -169,9 +267,13 @@ public class HashTable {
         // GANO'ya göre büyükten küçüğe sırala
         list.sort((a,b) -> Float.compare(b.getGano(), a.getGano()));
         writeToFile("bolum_sirasi.txt", list);
+        long endTime = System.nanoTime(); // Bitiş zamanı
+        long duration = (endTime - startTime) / 1_000_000;
+        writePerformanceToFile("performans.txt", "GANO'ya göre gelişmiş mod  "  +bolum+ ". (Sınıf) sıralama süresi: " + duration + " ms");
         return list;
     }
     public Ogrenci[] listbydepartmanArray(int bolum) {
+        long startTime = System.nanoTime();
         Ogrenci[] array = getAllStudentsArray(); // Daha önce yazdığımız diziyi döndüren metot
 
         int n = array.length;
@@ -200,12 +302,16 @@ public class HashTable {
                 }
             }
         }
+        long endTime = System.nanoTime(); // Bitiş zamanı
+        long duration = (endTime - startTime) / 1_000_000;
+        writePerformanceToFile("performans.txt", "GANO'ya göre temel mod  "  +bolum+ ". (Sınıf) sıralama süresi: " + duration + " ms");
 
         return array2;
 
     }
 
     public ArrayList<Ogrenci> listByGanoAdvanced() {
+        long startTime = System.nanoTime();
         ArrayList<Ogrenci> list = new ArrayList<>();
 
 
@@ -213,11 +319,15 @@ public class HashTable {
              list = getAllStudents();
             // GANO'ya göre büyükten küçüğe sırala
             list.sort((a,b) -> Float.compare(b.getGano(), a.getGano()));
+        long endTime = System.nanoTime(); // Bitiş zamanı
+        long duration = (endTime - startTime) / 1_000_000;
+        writePerformanceToFile("performans.txt", "GANO'ya göre gelişmiş mod  "  + " sıralama süresi: " + duration + " ms");
 
 
         return list;
     }
     public Ogrenci[] listByGanoArray() {
+        long startTime = System.nanoTime();
         Ogrenci[] array = getAllStudentsArray(); // Daha önce yazdığımız diziyi döndüren metot
 
         int n = array.length;
@@ -233,8 +343,18 @@ public class HashTable {
                 }
             }
         }
+        long endTime = System.nanoTime(); // Bitiş zamanı
+        long duration = (endTime - startTime) / 1_000_000;
+        writePerformanceToFile("performans.txt", "GANO'ya göre temel mod  "  + " sıralama süresi: " + duration + " ms");
 
         return array;
+    }
+    private void writePerformanceToFile(String filename, String content) {
+        try (FileWriter fw = new FileWriter(filename, true)) { // true = append (üstüne yaz)
+            fw.write(content + System.lineSeparator());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 

@@ -1,0 +1,12 @@
+GANO'ya göre temel mod   sıralama süresi: 269 ms
+GANO'ya göre temel mod  1. (Sınıf) sıralama süresi: 12 ms
+GANO'ya göre temel mod  2. (Sınıf) sıralama süresi: 19 ms
+GANO'ya göre temel mod  3. (Sınıf) sıralama süresi: 72 ms
+GANO'ya göre temel mod  4. (Sınıf) sıralama süresi: 26 ms
+GANO'ya göre temel mod   sıralama süresi: 340 ms
+GANO'ya göre gelişmiş mod  1. (Sınıf) sıralama süresi: 5 ms
+GANO'ya göre gelişmiş mod  2. (Sınıf) sıralama süresi: 8 ms
+GANO'ya göre gelişmiş mod  3. (Sınıf) sıralama süresi: 9 ms
+GANO'ya göre gelişmiş mod  4. (Sınıf) sıralama süresi: 10 ms
+OgrenciNo'ya göre temel mod   sıralama süresi: 98 ms
+Ogrenci_No'ya göre gelişmiş mod   sıralama süresi: 24 ms
