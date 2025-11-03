@@ -52,3 +52,17 @@ Cinsiyet'e göre temel mod   arama süresi: 0 ms
 Cinsiyet'e göre temel mod   arama süresi: 1 ms
 Cinsiyet'e göre gelişmiş mod   arama süresi: 0 ms
 Cinsiyet'e göre gelişmiş mod   arama süresi: 0 ms
+GANO'ya göre temel mod  1. (Sınıf) sıralama süresi: 14 ms
+GANO'ya göre temel mod  2. (Sınıf) sıralama süresi: 14 ms
+GANO'ya göre temel mod  3. (Sınıf) sıralama süresi: 39 ms
+GANO'ya göre temel mod  4. (Sınıf) sıralama süresi: 27 ms
+GANO'ya göre temel mod   sıralama süresi: 126 ms
+Ad'a göre gelişmiş mod   arama süresi: 0 ms
+Ad'a göre gelişmiş mod   arama süresi: 0 ms
+Ad'a göre temel mod   arama süresi: 1 ms
+Ad'a göre temel mod   arama süresi: 0 ms
+GANO'ya göre temel mod  1. (Sınıf) sıralama süresi: 12 ms
+GANO'ya göre temel mod  2. (Sınıf) sıralama süresi: 18 ms
+GANO'ya göre temel mod  3. (Sınıf) sıralama süresi: 41 ms
+GANO'ya göre temel mod  4. (Sınıf) sıralama süresi: 12 ms
+GANO'ya göre temel mod   sıralama süresi: 226 ms

@@ -328,6 +328,7 @@ public class HashTable {
         long endTime = System.nanoTime(); // Bitiş zamanı
         long duration = (endTime - startTime) / 1_000_000;
         writePerformanceToFile("performans.txt", "GANO'ya göre gelişmiş mod  "  +bolum+ ". (Sınıf) sıralama süresi: " + duration + " ms");
+        writeToFile("sinif_sirasi.txt", list);
         return list;
     }
     public Ogrenci[] listbydepartmanArray(int bolum) {
@@ -481,7 +482,7 @@ public class HashTable {
     }
 
     // ------------------ DOSYAYA YAZ ------------------
-    private void writeToFile(String filename, ArrayList<Ogrenci> list) {
+    public void writeToFile(String filename, ArrayList<Ogrenci> list) {
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(filename))) {
             for(Ogrenci ogr : list) bw.write(ogr.toFileString() + "\n");
         } catch (IOException e) {

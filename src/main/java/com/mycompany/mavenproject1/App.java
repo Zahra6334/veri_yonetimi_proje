@@ -14,6 +14,9 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -275,6 +278,8 @@ public class App extends Application {
                 // Diziyi ArrayList'e çevir (tabloda göstermek için)
                 list = new ArrayList<>(Arrays.asList(dizi));
 
+                writeToFile("ogr_no_sirasi.txt", list);
+
                 displayStudentsInTable(list, "Öğrenci No'ya Göre Sıralama (Dizi ile)");
                 showAlert("Bilgi", "Listeleme süresi: " + (endTime - startTime) + " ms");
 
@@ -356,6 +361,7 @@ public class App extends Application {
                 for (Ogrenci o : list1) {
                     list1view.add(o);
                 }
+                writeToFile("sinif_sirasi.txt", list1view);
 
 // Mevcut metodla gösteriyoruz
                 displayStudentsInTable(list1view, "Analiz: 1. Sınıf GANO Sıralaması");
@@ -365,6 +371,7 @@ public class App extends Application {
                 for (Ogrenci o : list2) {
                     list2view.add(o);
                 }
+                writeToFile("sinif_sirasi.txt", list2view);
 
 // Mevcut metodla gösteriyoruz
                 displayStudentsInTable(list2view, "Analiz: 2. Sınıf GANO Sıralaması");
@@ -374,6 +381,7 @@ public class App extends Application {
                 for (Ogrenci o : list3) {
                     list3view.add(o);
                 }
+                writeToFile("sinif_sirasi.txt", list3view);
 
 // Mevcut metodla gösteriyoruz
                 displayStudentsInTable(list3view, "Analiz: 3. Sınıf GANO Sıralaması");
@@ -383,6 +391,7 @@ public class App extends Application {
                 for (Ogrenci o : list4) {
                     list4view.add(o);
                 }
+                writeToFile("sinif_sirasi.txt", list4view);
 
 // Mevcut metodla gösteriyoruz
                 displayStudentsInTable(list4view, "Analiz: 4. Sınıf GANO Sıralaması");
@@ -392,6 +401,7 @@ public class App extends Application {
                 for (Ogrenci o : allStudentsByGano) {
                     list.add(o);
                 }
+                writeToFile("sinif_sirasi.txt", list);
 
 // Mevcut metodla gösteriyoruz
                 displayStudentsInTable(list, "Analiz: TÜM Bölümler GANO Sıralaması");
@@ -524,5 +534,12 @@ public class App extends Application {
 
     public static void main(String[] args) {
         launch();
+    }
+    public void writeToFile(String filename, ArrayList<Ogrenci> list) {
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(filename))) {
+            for(Ogrenci ogr : list) bw.write(ogr.toFileString() + "\n");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
