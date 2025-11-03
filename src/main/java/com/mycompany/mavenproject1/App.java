@@ -16,16 +16,20 @@ import javafx.stage.Stage;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Random;
 
 public class App extends Application {
 
     private boolean Use_Advanced_Data_Type = false; // true = gelişmiş mod, false = temel mod
     private HashTable hashTable;
+    private HashTable hashTable_Advanced;
 
     @Override
     public void start(Stage stage) {
         hashTable = new HashTable(12007, Use_Advanced_Data_Type);
+        hashTable_Advanced = new HashTable(12007, !Use_Advanced_Data_Type);
+
         addRandomStudents(10000);
 
         Label header = new Label("Öğrenci Kayıt Sistemi");
@@ -80,6 +84,7 @@ public class App extends Application {
 
                 Ogrenci ogr = new Ogrenci(isim, soyad, ogrNo, gano, bolumSira, sinifSira, sinif, cinsiyet);
                 hashTable.addStudent(ogr);
+                hashTable_Advanced.addStudent(ogr);
 
                 showAlert("Başarılı", "Öğrenci eklendi: " + ogr.getOgrNo());
 
@@ -132,7 +137,14 @@ public class App extends Application {
             dialog.showAndWait().ifPresent(input -> {
                 try {
                     int no = Integer.parseInt(input);
-                    Ogrenci ogr = hashTable.searchByNumber(no);
+                    Ogrenci ogr;
+                    if(Use_Advanced_Data_Type){
+                        ogr = hashTable_Advanced.searchByNumber(no);
+                    }else{
+                        ogr=hashTable.searchByNumber(no);
+                    }
+
+
                     if (ogr != null) showAlert("Bulundu", ogr.toString());
                     else showAlert("Bulunamadı", "Öğrenci bulunamadı!");
                 } catch (NumberFormatException ex) {
@@ -148,16 +160,26 @@ public class App extends Application {
         btnAdaAra.setOnAction(e -> {
             TextInputDialog dialog = new TextInputDialog();
             dialog.setHeaderText("Aranacak adı girin:");
-            dialog.showAndWait().ifPresent(input -> {
+            dialog.showAndWait().ifPresent(ad -> {
+
                 long startTime = System.currentTimeMillis();
-                ArrayList<Ogrenci> list = hashTable.searchByName(input);
-                long endTime = System.currentTimeMillis();
-                if (!list.isEmpty()) {
-                    displayStudentsInTable(list, "Ada Göre Arama Sonuçları: " + input); // Tabloda göster
+
+                if (Use_Advanced_Data_Type) {
+                    // Gelişmiş mod
+                    ArrayList<Ogrenci> list = hashTable_Advanced.searchByNameAdvanced(ad);
+                    long endTime = System.currentTimeMillis();
+                    displayStudentsInTable(list, "Ada Göre Arama (Gelişmiş)");
+                    showAlert("Bilgi", "Arama süresi: " + (endTime - startTime) + " ms");
+
                 } else {
-                    showAlert("Bulunamadı", input + " isimli öğrenci bulunamadı!");
+                    // Temel mod
+                    Ogrenci[] dizi = hashTable.searchByNameBasic(ad);
+                    long endTime = System.currentTimeMillis();
+
+                    ArrayList<Ogrenci> list = new ArrayList<>(Arrays.asList(dizi));
+                    displayStudentsInTable(list, "Ada Göre Arama (Temel - Dizi)");
+                    showAlert("Bilgi", "Arama süresi: " + (endTime - startTime) + " ms");
                 }
-                showAlert("Bilgi", "Arama süresi: " + (endTime - startTime) + " ms");
             });
         });
 
@@ -217,7 +239,13 @@ public class App extends Application {
         Button btnTumOgr = new Button("Tüm Öğrenciler");
         btnTumOgr.setOnAction(e -> {
             long startTime = System.currentTimeMillis();
-            ArrayList<Ogrenci> list = hashTable.getAllStudents();
+            ArrayList<Ogrenci> list=null;
+            if(Use_Advanced_Data_Type) {
+                list = hashTable_Advanced.getAllStudents();
+            }else{
+                list = hashTable.getAllStudents();
+            }
+
             long endTime = System.currentTimeMillis();
 
             displayStudentsInTable(list, "Tüm Öğrenciler Listesi"); // Tabloda göster
@@ -236,7 +264,7 @@ public class App extends Application {
             ArrayList<Ogrenci> list = null;
             if(Use_Advanced_Data_Type){
 
-                 list = hashTable.listByOgrNo();
+                 list = hashTable_Advanced.listByOgrNo();
             }else{
                 // --------------------
                 // Temel mod (sadece diziler)
@@ -268,21 +296,32 @@ public class App extends Application {
         // -------------------------
         Button btnCinsiyetListe = new Button("Cinsiyete Göre Listele");
         btnCinsiyetListe.setOnAction(e -> {
-            TextInputDialog dialog = new TextInputDialog();
-            dialog.setHeaderText("Cinsiyet girin (E/K):");
-            dialog.showAndWait().ifPresent(input -> {
-                if (input.length() > 0) {
-                    char cins = Character.toUpperCase(input.charAt(0));
-                    ArrayList<Ogrenci> list = hashTable.listByGender(cins);
+            ChoiceDialog<Character> dialog = new ChoiceDialog<>('E', 'E', 'K');
+            dialog.setTitle("Cinsiyete Göre Listeleme");
+            dialog.setHeaderText("Lütfen bir cinsiyet seçin:");
+            dialog.setContentText("Cinsiyet:");
+            dialog.showAndWait().ifPresent(cinsiyet -> {
 
-                    displayStudentsInTable(list, cins + " Cinsiyetli Öğrenciler");
+                long startTime = System.currentTimeMillis();
 
-                    showAlert("Bilgi", list.size() + " öğrenci bulundu.");
+                if (Use_Advanced_Data_Type) {
+                    // Gelişmiş mod: ArrayList
+                    ArrayList<Ogrenci> list = hashTable.listByGenderAdvanced(cinsiyet);
+                    long endTime = System.currentTimeMillis();
+                    displayStudentsInTable(list, "Cinsiyete Göre Listeleme (Gelişmiş)");
+                    showAlert("Bilgi", "Listeleme süresi: " + (endTime - startTime) + " ms");
+
                 } else {
-                    showAlert("Hata", "Geçerli bir cinsiyet girin!");
+                    // Temel mod: Dizi
+                    Ogrenci[] dizi = hashTable.listByGenderBasic(cinsiyet);
+                    long endTime = System.currentTimeMillis();
+                    ArrayList<Ogrenci> list = new ArrayList<>(Arrays.asList(dizi));
+                    displayStudentsInTable(list, "Cinsiyete Göre Listeleme (Temel - Dizi)");
+                    showAlert("Bilgi", "Listeleme süresi: " + (endTime - startTime) + " ms");
                 }
             });
         });
+
 
         // -------------------------
         // Bölüme Göre Sıralı Analiz (İstenen Yeni Fonksiyon)
@@ -292,23 +331,23 @@ public class App extends Application {
             long totalStartTime = System.currentTimeMillis();
             if(Use_Advanced_Data_Type){
                 // 1. Bölüm 1'i GANO'ya göre sırala ve göster
-                ArrayList<Ogrenci> list1 = hashTable.listByDepartment(1);
+                ArrayList<Ogrenci> list1 = hashTable_Advanced.listByDepartment(1);
                 displayStudentsInTable(list1, "Analiz: 1. Sınıf GANO Sıralaması");
 
                 // 2. Bölüm 2'yi GANO'ya göre sırala ve göster
-                ArrayList<Ogrenci> list2 = hashTable.listByDepartment(2);
+                ArrayList<Ogrenci> list2 = hashTable_Advanced.listByDepartment(2);
                 displayStudentsInTable(list2, "Analiz: 2. Sınıf GANO Sıralaması");
 
                 // 3. Bölüm 3'ü GANO'ya göre sırala ve göster
-                ArrayList<Ogrenci> list3 = hashTable.listByDepartment(3);
+                ArrayList<Ogrenci> list3 = hashTable_Advanced.listByDepartment(3);
                 displayStudentsInTable(list3, "Analiz: 3. Sınıf GANO Sıralaması");
 
                 // 4. Bölüm 4'ü GANO'ya göre sırala ve göster
-                ArrayList<Ogrenci> list4 = hashTable.listByDepartment(4);
+                ArrayList<Ogrenci> list4 = hashTable_Advanced.listByDepartment(4);
                 displayStudentsInTable(list4, "Analiz: 4. Sınıf GANO Sıralaması");
 
                 // 5. TÜM Bölümleri GANO'ya Göre Sırala ve göster
-                ArrayList<Ogrenci> allStudentsByGano = hashTable.listByGanoAdvanced();
+                ArrayList<Ogrenci> allStudentsByGano = hashTable_Advanced.listByGanoAdvanced();
                 displayStudentsInTable(allStudentsByGano, "Analiz: TÜM Bölümler GANO Sıralaması");
 
             }else{
@@ -411,6 +450,7 @@ public class App extends Application {
 
             Ogrenci ogr = new Ogrenci(isim, soyad, ogrNo, gano, bolumSira, sinifSira, sinif, cinsiyet);
             hashTable.addStudent(ogr);
+            hashTable_Advanced.addStudent(ogr);
         }
         long endTime = System.currentTimeMillis();
 

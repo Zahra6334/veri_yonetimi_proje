@@ -10,3 +10,45 @@ GANO'ya göre gelişmiş mod  3. (Sınıf) sıralama süresi: 9 ms
 GANO'ya göre gelişmiş mod  4. (Sınıf) sıralama süresi: 10 ms
 OgrenciNo'ya göre temel mod   sıralama süresi: 98 ms
 Ogrenci_No'ya göre gelişmiş mod   sıralama süresi: 24 ms
+OgrenciNo'ya göre temel mod   sıralama süresi: 82 ms
+Ogrenci_No'ya göre gelişmiş mod   sıralama süresi: 1 ms
+Ogrenci_No'ya göre gelişmiş mod   sıralama süresi: 0 ms
+GANO'ya göre gelişmiş mod  1. (Sınıf) sıralama süresi: 0 ms
+GANO'ya göre gelişmiş mod  2. (Sınıf) sıralama süresi: 0 ms
+GANO'ya göre gelişmiş mod  3. (Sınıf) sıralama süresi: 1 ms
+GANO'ya göre gelişmiş mod  4. (Sınıf) sıralama süresi: 0 ms
+GANO'ya göre gelişmiş mod   sıralama süresi: 0 ms
+Ogrenci_No'ya göre gelişmiş mod   sıralama süresi: 0 ms
+GANO'ya göre gelişmiş mod  1. (Sınıf) sıralama süresi: 1 ms
+GANO'ya göre gelişmiş mod  2. (Sınıf) sıralama süresi: 0 ms
+GANO'ya göre gelişmiş mod  3. (Sınıf) sıralama süresi: 0 ms
+GANO'ya göre gelişmiş mod  4. (Sınıf) sıralama süresi: 0 ms
+GANO'ya göre gelişmiş mod   sıralama süresi: 0 ms
+OgrenciNo'ya göre temel mod   sıralama süresi: 85 ms
+GANO'ya göre temel mod  1. (Sınıf) sıralama süresi: 20 ms
+GANO'ya göre temel mod  2. (Sınıf) sıralama süresi: 27 ms
+GANO'ya göre temel mod  3. (Sınıf) sıralama süresi: 79 ms
+GANO'ya göre temel mod  4. (Sınıf) sıralama süresi: 25 ms
+GANO'ya göre temel mod   sıralama süresi: 200 ms
+Ogrenci_No'ya göre gelişmiş mod   sıralama süresi: 16 ms
+GANO'ya göre gelişmiş mod  1. (Sınıf) sıralama süresi: 11 ms
+GANO'ya göre gelişmiş mod  2. (Sınıf) sıralama süresi: 3 ms
+GANO'ya göre gelişmiş mod  3. (Sınıf) sıralama süresi: 4 ms
+GANO'ya göre gelişmiş mod  4. (Sınıf) sıralama süresi: 4 ms
+GANO'ya göre gelişmiş mod   sıralama süresi: 7 ms
+OgrenciNo'ya göre temel mod   sıralama süresi: 86 ms
+Ogrenci_No'ya göre arama temel Advanced mod   arama süresi: 0 ms
+Ogrenci_No'ya göre arama  Advanced mod   arama süresi: 0 ms
+Ogrenci_No'ya göre arama  temel mod   arama süresi: 0 ms
+Ogrenci_No'ya göre arama  Advanced mod   arama süresi: 0 ms
+Ogrenci_No'ya göre arama  temel mod   arama süresi: 0 ms
+Ogrenci_No'ya göre arama  Advanced mod   arama süresi: 0 ms
+Ogrenci_No'ya göre arama  temel mod   arama süresi: 0 ms
+
+
+Ad'a göre temel mod   arama süresi: 2 ms
+Ad'a göre gelişmiş mod   arama süresi: 0 ms
+Cinsiyet'e göre temel mod   arama süresi: 0 ms
+Cinsiyet'e göre temel mod   arama süresi: 1 ms
+Cinsiyet'e göre gelişmiş mod   arama süresi: 0 ms
+Cinsiyet'e göre gelişmiş mod   arama süresi: 0 ms

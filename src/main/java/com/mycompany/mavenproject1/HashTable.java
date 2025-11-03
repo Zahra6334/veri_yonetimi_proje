@@ -153,24 +153,82 @@ public class HashTable {
 
     // ------------------ NUMARAYA GÖRE ARAMA ------------------
     public Ogrenci searchByNumber(int no) {
-        if(useAdvanced) return advancedMap.get(no);
-        int index = hash(no);
-        int start = index;
-        while(table[index] != null) {
-            if(table[index].getOgrNo() == no) return table[index];
-            index = (index + 1) % size;
-            if(index == start) break;
+        Ogrenci ogr;
+        String type;
+        long startTime = System.nanoTime();
+        if(useAdvanced){
+            type="Advanced";
+
+            ogr = advancedMap.get(no);
+
+
+        }else{
+            type="temel";
+
+
+            int index = hash(no);
+            int start = index;
+            while(table[index] != null) {
+                if(table[index].getOgrNo() == no){
+                    ogr = table[index];
+                    break;
+                }
+                index = (index + 1) % size;
+                if(index == start) break;
+            }
+            ogr = table[index];
+
         }
-        return null;
+        long endTime = System.nanoTime(); // Bitiş zamanı
+        long duration = (endTime - startTime) / 1_000_000;
+        writePerformanceToFile("performans.txt", "Ogrenci_No'ya göre arama  "+type+ " mod  "  + " arama süresi: " + duration + " ms");
+        return ogr;
     }
 
-    // ------------------ ADA GÖRE ARAMA ------------------
-    public ArrayList<Ogrenci> searchByName(String ad) {
+    // ------------------ ADA GÖRE ARAMA (GELİŞMİŞ - ArrayList) ------------------
+    public ArrayList<Ogrenci> searchByNameAdvanced(String ad) {
+        long startTime = System.nanoTime();
         ArrayList<Ogrenci> list = new ArrayList<>();
-        for(Ogrenci ogr : getAllStudents()) {
-            if(ogr.getIsim().equalsIgnoreCase(ad)) list.add(ogr);
+        for (Ogrenci ogr : getAllStudents()) {
+            if (ogr.getIsim().equalsIgnoreCase(ad)) {
+                list.add(ogr);
+            }
         }
+        long endTime = System.nanoTime(); // Bitiş zamanı
+        long duration = (endTime - startTime) / 1_000_000;
+        writePerformanceToFile("performans.txt", "Ad'a göre gelişmiş mod  "  + " arama süresi: " + duration + " ms");
         return list;
+    }
+
+    // ------------------ ADA GÖRE ARAMA (TEMEL - Dizi) ------------------
+    public Ogrenci[] searchByNameBasic(String ad) {
+        long startTime = System.nanoTime();
+        // Önce tüm öğrencileri dizide toplayalım
+        ArrayList<Ogrenci> allStudents = getAllStudents();
+        Ogrenci[] dizi = new Ogrenci[allStudents.size()];
+        for (int i = 0; i < allStudents.size(); i++) {
+            dizi[i] = allStudents.get(i);
+        }
+
+        // Arama sonucunu geçici bir listeye koyacağız
+        ArrayList<Ogrenci> bulunanlar = new ArrayList<>();
+
+        for (int i = 0; i < dizi.length; i++) {
+            if (dizi[i].getIsim().equalsIgnoreCase(ad)) {
+                bulunanlar.add(dizi[i]);
+            }
+        }
+
+        // Sonuçları dizi olarak döndür
+        Ogrenci[] sonuc = new Ogrenci[bulunanlar.size()];
+        for (int i = 0; i < bulunanlar.size(); i++) {
+            sonuc[i] = bulunanlar.get(i);
+        }
+        long endTime = System.nanoTime(); // Bitiş zamanı
+        long duration = (endTime - startTime) / 1_000_000;
+        writePerformanceToFile("performans.txt", "Ad'a göre temel mod  "  + " arama süresi: " + duration + " ms");
+
+        return sonuc;
     }
 
     // ------------------ TÜM ÖĞRENCİLER ------------------
@@ -358,11 +416,48 @@ public class HashTable {
     }
 
 
-    public ArrayList<Ogrenci> listByGender(char cinsiyet) {
+    // ------------------ CİNSİYETE GÖRE LİSTELE (GELİŞMİŞ - ArrayList) ------------------
+    public ArrayList<Ogrenci> listByGenderAdvanced(char cinsiyet) {
+        long startTime = System.nanoTime();
         ArrayList<Ogrenci> list = new ArrayList<>();
-        for(Ogrenci ogr : getAllStudents()) if(ogr.getCinsiyet() == cinsiyet) list.add(ogr);
+        for (Ogrenci ogr : getAllStudents()) {
+            if (ogr.getCinsiyet() == cinsiyet) {
+                list.add(ogr);
+            }
+        }
+        long endTime = System.nanoTime(); // Bitiş zamanı
+        long duration = (endTime - startTime) / 1_000_000;
+        writePerformanceToFile("performans.txt", "Cinsiyet'e göre gelişmiş mod  "  + " arama süresi: " + duration + " ms");
         return list;
     }
+
+    // ------------------ CİNSİYETE GÖRE LİSTELE (TEMEL - Dizi) ------------------
+    public Ogrenci[] listByGenderBasic(char cinsiyet) {
+        long startTime = System.nanoTime();
+        ArrayList<Ogrenci> allStudents = getAllStudents();
+        Ogrenci[] dizi = new Ogrenci[allStudents.size()];
+        for (int i = 0; i < allStudents.size(); i++) {
+            dizi[i] = allStudents.get(i);
+        }
+
+        ArrayList<Ogrenci> bulunanlar = new ArrayList<>();
+        for (int i = 0; i < dizi.length; i++) {
+            if (dizi[i].getCinsiyet() == cinsiyet) {
+                bulunanlar.add(dizi[i]);
+            }
+        }
+
+        Ogrenci[] sonuc = new Ogrenci[bulunanlar.size()];
+        for (int i = 0; i < bulunanlar.size(); i++) {
+            sonuc[i] = bulunanlar.get(i);
+        }
+        long endTime = System.nanoTime(); // Bitiş zamanı
+        long duration = (endTime - startTime) / 1_000_000;
+        writePerformanceToFile("performans.txt", "Cinsiyet'e göre temel mod  "  + " arama süresi: " + duration + " ms");
+
+        return sonuc;
+    }
+
 
     public ObservableList<HashRow> getHashTableData() {
         ObservableList<HashRow> list = FXCollections.observableArrayList();
