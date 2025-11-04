@@ -142,9 +142,9 @@ public class App extends Application {
                     int no = Integer.parseInt(input);
                     Ogrenci ogr;
                     if(Use_Advanced_Data_Type){
-                        ogr = hashTable_Advanced.searchByNumber(no);
+                        ogr = hashTable_Advanced.searchByNumber(no);//gelişmiş ise gelişmiş ile
                     }else{
-                        ogr=hashTable.searchByNumber(no);
+                        ogr=hashTable.searchByNumber(no);//değils e
                     }
 
 
@@ -197,6 +197,7 @@ public class App extends Application {
                 try {
                     int no = Integer.parseInt(input);
                     boolean silindi = hashTable.deleteStudent(no);
+                    boolean sil=hashTable_Advanced.deleteStudent(no);
                     if (silindi) showAlert("Başarılı", no + " numaralı öğrenci silindi.");
                     else showAlert("Hata", "Öğrenci bulunamadı!");
                 } catch (NumberFormatException ex) {
@@ -216,14 +217,21 @@ public class App extends Application {
                 try {
                     int no = Integer.parseInt(input);
                     Ogrenci ogr = hashTable.searchByNumber(no);
+                    Ogrenci ogr_A = hashTable_Advanced.searchByNumber(no);
                     if (ogr != null) {
                         TextInputDialog ganoDialog = new TextInputDialog(Float.toString(ogr.getGano()));
                         ganoDialog.setHeaderText("Yeni GANO girin:");
-                        ganoDialog.showAndWait().ifPresent(ganoInput -> ogr.setGano(Float.parseFloat(ganoInput)));
+                        ganoDialog.showAndWait().ifPresent(ganoInput ->{
+                            ogr.setGano(Float.parseFloat(ganoInput));
+                            ogr_A.setGano(Float.parseFloat(ganoInput));
+                        } );
 
                         TextInputDialog sinifDialog = new TextInputDialog(Integer.toString(ogr.getSinif()));
                         sinifDialog.setHeaderText("Yeni Sınıf girin:");
-                        sinifDialog.showAndWait().ifPresent(sinifInput -> ogr.setSinif(Integer.parseInt(sinifInput)));
+                        sinifDialog.showAndWait().ifPresent(sinifInput -> {
+                            ogr.setSinif(Integer.parseInt(sinifInput));
+                            ogr_A.setSinif(Integer.parseInt(sinifInput));
+                        });
 
                         showAlert("Başarılı", "Öğrenci güncellendi: " + ogr.getOgrNo());
                     } else {
@@ -311,7 +319,7 @@ public class App extends Application {
 
                 if (Use_Advanced_Data_Type) {
                     // Gelişmiş mod: ArrayList
-                    ArrayList<Ogrenci> list = hashTable.listByGenderAdvanced(cinsiyet);
+                    ArrayList<Ogrenci> list = hashTable_Advanced.listByGenderAdvanced(cinsiyet);
                     long endTime = System.currentTimeMillis();
                     displayStudentsInTable(list, "Cinsiyete Göre Listeleme (Gelişmiş)");
                     showAlert("Bilgi", "Listeleme süresi: " + (endTime - startTime) + " ms");
